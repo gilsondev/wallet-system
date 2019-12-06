@@ -8,6 +8,8 @@ import javax.validation.constraints.NotNull;
 
 @Data
 public class UserDTO {
+    private Long id;
+
     @Length(min = 3, max = 50, message = "Name should have between 3 and 50 characters")
     private String name;
 

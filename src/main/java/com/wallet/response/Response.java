@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -12,5 +13,5 @@ import java.util.List;
 public class Response<T> {
     private T data;
 
-    private List<String> errors;
+    private List<String> errors = new ArrayList<>();
 }

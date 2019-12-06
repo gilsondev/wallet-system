@@ -33,6 +33,8 @@ public class UserControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
+    private final Long ID = 1L;
+
     private final String USER = "User Test";
 
     private final String PASSWORD = "123123";
@@ -44,16 +46,33 @@ public class UserControllerTest {
     @Test
     public void shouldCreateUser() throws Exception {
         when(userService.save(any(User.class))).thenReturn(getMockUser());
+        String content = getJSONPayload(null, USER, EMAIL, PASSWORD);
 
         mvc.perform(post(URL)
-                .content(getJSONPayload())
+                .content(content)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.data.id").value(ID))
+                .andExpect(jsonPath("$.data.name").value(USER))
+                .andExpect(jsonPath("$.data.email").value(EMAIL));
+    }
+
+    @Test
+    public void shouldNotCreateUser() throws Exception {
+        String content = getJSONPayload(null, USER, "wrong", PASSWORD);
+
+        mvc.perform(post(URL)
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors[0]").value("E-mail is invalid"));
     }
 
     private User getMockUser() {
         User user = new User();
+        user.setId(ID);
         user.setName(USER);
         user.setEmail(EMAIL);
         user.setPassword(PASSWORD);
@@ -61,11 +80,12 @@ public class UserControllerTest {
         return user;
     }
 
-    private String getJSONPayload() throws JsonProcessingException {
+    private String getJSONPayload(Long id, String name, String email, String password) throws JsonProcessingException {
         UserDTO userDTO = new UserDTO();
-        userDTO.setName(USER);
-        userDTO.setEmail(EMAIL);
-        userDTO.setPassword(PASSWORD);
+        userDTO.setId(id);
+        userDTO.setName(name);
+        userDTO.setEmail(email);
+        userDTO.setPassword(password);
 
         return objectMapper.writeValueAsString(userDTO);
     }
